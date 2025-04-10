@@ -1,0 +1,10 @@
+development:
+  dialect: mysql
+  datasource: root:root@tcp(localhost:1444)/go_boilerplate?parseTime=true
+  dir: resources/migrations/go-boilerplate/app/migrations
+  table: migrations_app_go_boilerplate
+container:
+  dialect: mysql
+  datasource: $WRITE_DB_URL
+  dir: migrations
+  table: migrations_app_go_boilerplate

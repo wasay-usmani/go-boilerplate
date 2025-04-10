@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+  go-boilerplate:
+    build:
+      context: . 
+      dockerfile: resources/dockerfiles/go-boilerplate.Dockerfile
+    restart: unless-stopped
+    logging:
+      driver: ${GO_ENV_DOCKER_LOG_DRIVER:-json-file}
+      options:
+        tag: go-boilerplate
+    networks:
+      - tr
+    ports:
+      - "8080:8080"
+    env_file:
+      - local.env
+    volumes:
+      - .:/tr
+    environment:
+      - ENVIRONMENT=DEVELOPMENT
+      - LOG_LEVEL=debug
+      - DEBUG=true
+      - DB_SCHEMA=go-boilerplate_db
+      - LISTEN_HOST=0.0.0.0
+      - LISTEN_PORT=8080
+      - CORS_ALLOWED_ORIGINS=*
+      - SUPERUSER_DATABASE_URL=root:root@tcp(mysql:3306)/dev?charset=utf8&parseTime=true
+      - WRITE_DB_URL=go-boilerplate:go-boilerplate@tcp(mysql:3306)/go-boilerplate_db?charset=utf8&parseTime=true
+      - READ_DB_URL=go-boilerplate:go-boilerplate@tcp(mysql:3306)/go-boilerplate_db?charset=utf8&parseTime=true
+
+networks:
+  tr:
+    external:
+      name: tr

@@ -1,0 +1,13 @@
+# this configuration is used by sqlboiler to generate models
+no-tests = true
+
+[mysql]
+  dbname  = "tr_billy"
+  host    = "localhost"
+  port    = 1444
+  user    = "billy"
+  pass    = "billy"
+  sslmode = "false"
+  blacklist = [
+    "migrations_app_tr_billy"
+  ]

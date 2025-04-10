@@ -1,0 +1,36 @@
+ARG GO_VERSION=1.22
+ARG ALPINE_VERSION=3.20
+
+# builder
+FROM golang:${GO_VERSION}-alpine${ALPINE_VERSION} as builder
+
+RUN apk add --no-cache git bash sed build-base
+
+RUN mkdir -p /build
+
+WORKDIR /build
+
+COPY . .
+
+ENV CGO_ENABLED=0
+ENV GOOS=linux
+ENV GOARCH=amd64
+ENV GOFLAGS="-mod=vendor"
+
+RUN ./resources/scripts/git_head_short.sh && \
+    echo "Applying build tag ${GIT_HEAD_SHORT}" && go build -v -a -o go-boilerplate \
+    -ldflags "-X main.build=${GIT_HEAD_SHORT} -w -extldflags '-static'" -a -tags netgo \
+    /build/cmd/go-boilerplate/main.go
+
+# actual container
+FROM gcr.io/distroless/static
+
+WORKDIR /app
+
+COPY --from=builder /build/go-boilerplate .
+
+EXPOSE 8080/tcp
+
+ENTRYPOINT [ "./go-boilerplate" ]
+
+# docker build -t <account_id>.dkr.ecr.<region>.amazonaws.com/go-boilerplate/go-boilerplate:latest . -f resources/dockerfiles/go-boilerplate.Dockerfile

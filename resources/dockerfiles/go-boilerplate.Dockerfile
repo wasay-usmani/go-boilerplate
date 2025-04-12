@@ -17,9 +17,8 @@ ENV GOOS=linux
 ENV GOARCH=amd64
 ENV GOFLAGS="-mod=vendor"
 
-RUN ./resources/scripts/git_head_short.sh && \
-    echo "Applying build tag ${GIT_HEAD_SHORT}" && go build -v -a -o go-boilerplate \
-    -ldflags "-X main.build=${GIT_HEAD_SHORT} -w -extldflags '-static'" -a -tags netgo \
+RUN go build -v -a -o go-boilerplate \
+    -ldflags "-w -extldflags '-static'" -a -tags netgo \
     /build/cmd/go-boilerplate/main.go
 
 # actual container

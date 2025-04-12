@@ -1,6 +1,0 @@
-name: go-boilerplate ~ Dev Build and Publish
-
-on:
-  push:
-    branches:
-      - go-boilerplate

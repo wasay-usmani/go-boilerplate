@@ -14,14 +14,9 @@ const (
 )
 
 type Config struct {
-	Viper *viper.Viper
-
 	ListenHost    string `validate:"required"`
 	ListenPort    string `validate:"required"`
-	RpcListenHost string `validate:"required"`
 	RpcListenPort string `validate:"required"`
-	AppName       string `validate:"required"`
-	AppBuild      string `validate:"required"`
 	LogLevel      string `validate:"required"`
 	Environment   string `validate:"required"`
 	Debug         bool
@@ -34,30 +29,6 @@ type Config struct {
 
 // LoadConfig returns app configuration, recommend setting app build as
 // build arg for proper/expected log output
-func LoadConfig(appBuild string) (*Config, error) {
-	// Load common configs
-	cfg, err := loadConfig(GitRepo, AppName, appBuild)
-	if err != nil {
-		return nil, err
-	}
-
-	config := Config{
-		ListenHost:           cfg.Viper.GetString("HTTP_LISTEN_HOST"),
-		ListenPort:           cfg.Viper.GetString("HTTP_LISTEN_PORT"),
-		DBSchema:             cfg.Viper.GetString("DB_SCHEMA"),
-		SuperUserDatabaseURL: cfg.Viper.GetString("SUPERUSER_DATABASE_URL"),
-		WriteDBURL:           cfg.Viper.GetString("WRITE_DB_URL"),
-		ReadDBURL:            cfg.Viper.GetString("READ_DB_URL"),
-	}
-
-	// Validate Config
-	if err := validator.New().Struct(config); err != nil {
-		return nil, fmt.Errorf("config validation failed: %w", err)
-	}
-
-	return &config, nil
-}
-
 // LoadConfig reads viper.Viper config using gitrepo & appName in the following paths
 //
 //	config
@@ -67,16 +38,16 @@ func LoadConfig(appBuild string) (*Config, error) {
 //	../../config
 //	../../../../#{gitRepo}/internal/#{appName}/config
 //	../../../#{gitRepo}/internal/#{appName}/config
-func loadConfig(gitRepo, appName, appBuild string) (*Config, error) {
+func LoadConfig(appBuild string) (*Config, error) {
 	v := viper.New()
 	v.AutomaticEnv()
 	v.AddConfigPath("config")
-	v.AddConfigPath(fmt.Sprintf("/etc/%s/config", appName))
-	v.AddConfigPath(fmt.Sprintf("./internal/%s/config", appName))
+	v.AddConfigPath(fmt.Sprintf("/etc/%s/config", AppName))
+	v.AddConfigPath(fmt.Sprintf("./internal/%s/config", AppName))
 	v.AddConfigPath("../config")
 	v.AddConfigPath("../../config")
-	v.AddConfigPath(fmt.Sprintf("../../../../%s/internal/%s/config", gitRepo, appName))
-	v.AddConfigPath(fmt.Sprintf("../../../%s/internal/%s/config", gitRepo, appName))
+	v.AddConfigPath(fmt.Sprintf("../../../../%s/internal/%s/config", GitRepo, AppName))
+	v.AddConfigPath(fmt.Sprintf("../../../%s/internal/%s/config", GitRepo, AppName))
 
 	v.SetConfigName("config")
 
@@ -85,20 +56,22 @@ func loadConfig(gitRepo, appName, appBuild string) (*Config, error) {
 	}
 
 	// Determine Runtime Environment
-
-	c := Config{
-		Viper:       v,
-		AppName:     appName,
-		AppBuild:    appBuild,
-		LogLevel:    v.GetString("LOG_LEVEL"),
-		Environment: v.GetString("ENVIRONMENT"),
-		Debug:       v.GetBool("DEBUG"),
+	config := Config{
+		Debug:                v.GetBool("DEBUG"),
+		LogLevel:             v.GetString("LOG_LEVEL"),
+		Environment:          v.GetString("ENVIRONMENT"),
+		ListenHost:           v.GetString("HTTP_LISTEN_HOST"),
+		ListenPort:           v.GetString("HTTP_LISTEN_PORT"),
+		DBSchema:             v.GetString("DB_SCHEMA"),
+		SuperUserDatabaseURL: v.GetString("SUPERUSER_DATABASE_URL"),
+		WriteDBURL:           v.GetString("WRITE_DB_URL"),
+		ReadDBURL:            v.GetString("READ_DB_URL"),
 	}
 
 	// Validate Config
-	if err := validator.New().Struct(c); err != nil {
+	if err := validator.New().Struct(config); err != nil {
 		return nil, fmt.Errorf("config validation failed: %w", err)
 	}
 
-	return &c, nil
+	return &config, nil
 }

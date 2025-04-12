@@ -24,11 +24,11 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-    - uses: act10ns/slack@v1
-      env:
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      with:
-        status: ${{ job.status }}
-        config: .github/slack/config.yml
-        channel: '#github-actions'
-      if: failure()
+    # - uses: act10ns/slack@v1
+    #   env:
+    #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    #   with:
+    #     status: ${{ job.status }}
+    #     config: .github/slack/config.yml
+    #     channel: '#github-actions'
+    #   if: failure()

@@ -36,11 +36,8 @@ init:
 	@echo "Updating import paths in Go files..."
 	@find . -name "*.go" -type f -exec sed -i 's|github.com/wasay-usmani/go-boilerplate|$(MODULE_PATH)|g' {} \;
 	
-	# Rename cmd directory if needed
-	@if [ -d "cmd/go-boilerplate" ]; then \
-		echo "Renaming cmd/go-boilerplate to cmd/$(PROJECT_NAME)..."; \
-		mv cmd/go-boilerplate cmd/$(PROJECT_NAME); \
-	fi
+	# Keep cmd directory name as is (preserve folder structure)
+	@echo "Keeping cmd directory structure as is..."
 	
 	# Rename internal directory if needed
 	@if [ -d "internal/go-boilerplate" ]; then \
@@ -120,7 +117,8 @@ clean:
 # Build the application
 build:
 	@echo "Building application..."
-	@go build -o bin/app ./cmd/*/main.go
+	$(eval BUILD_NAME := $(shell grep '^module ' go.mod | cut -d' ' -f2 | sed 's/.*\///'))
+	@go build -o bin/$(BUILD_NAME) ./cmd/*/main.go
 
 # Run tests
 test:

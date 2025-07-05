@@ -9,8 +9,7 @@ on:
 
 permissions:
   contents: read
-  # Optional: allow read access to pull request. Use with `only-new-issues` option.
-  # pull-requests: read
+
   pull-requests: read
 
 jobs:
@@ -29,5 +28,5 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v4
         with:
-          version: v2.1.0
+          version: v2.2.1
           args: --timeout=5m

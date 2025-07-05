@@ -36,31 +36,42 @@ init:
 	@echo "Updating import paths in Go files..."
 	@find . -name "*.go" -type f -exec sed -i 's|github.com/wasay-usmani/go-boilerplate|$(MODULE_PATH)|g' {} \;
 	
-	# Keep cmd directory name as is (preserve folder structure)
-	@echo "Keeping cmd directory structure as is..."
+	# Rename cmd directory to match project name
+	@if [ -d "cmd/go-boilerplate" ]; then \
+		echo "Renaming cmd/go-boilerplate to cmd/$(PROJECT_NAME)..."; \
+		mv cmd/go-boilerplate cmd/$(PROJECT_NAME); \
+	fi
 	
-	# Rename internal directory if needed
+	# Rename internal directory to match project name
 	@if [ -d "internal/go-boilerplate" ]; then \
 		echo "Renaming internal/go-boilerplate to internal/$(PROJECT_NAME)..."; \
 		mv internal/go-boilerplate internal/$(PROJECT_NAME); \
+	fi
+	
+	# Rename app subdirectory to match project name
+	@if [ -d "internal/$(PROJECT_NAME)/app/go-boilerplate" ]; then \
+		echo "Renaming internal/$(PROJECT_NAME)/app/go-boilerplate to internal/$(PROJECT_NAME)/app/$(PROJECT_NAME)..."; \
+		mv internal/$(PROJECT_NAME)/app/go-boilerplate internal/$(PROJECT_NAME)/app/$(PROJECT_NAME); \
 	fi
 	
 	# Update any remaining references to go-boilerplate in internal structure
 	@if [ -d "internal/$(PROJECT_NAME)" ]; then \
 		echo "Updating internal structure references..."; \
 		find internal/$(PROJECT_NAME) -name "*.go" -type f -exec sed -i 's|go-boilerplate|$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
+		echo "Updating internal package names in import paths..."; \
+		find internal/$(PROJECT_NAME) -name "*.go" -type f -exec sed -i 's|internal/go-boilerplate|internal/$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
+		echo "Updating app package names in import paths..."; \
+		find internal/$(PROJECT_NAME) -name "*.go" -type f -exec sed -i 's|app/go-boilerplate|app/$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
 	fi
+	
+	# Update import paths in all Go files to use the new internal structure
+	@echo "Updating import paths to use new internal structure..."
+	@find . -name "*.go" -type f -exec sed -i 's|$(MODULE_PATH)/internal/go-boilerplate|$(MODULE_PATH)/internal/$(PROJECT_NAME)|g' {} \;
 	
 	# Update Dockerfile if it exists
 	@if [ -f "Dockerfile" ]; then \
 		echo "Updating Dockerfile..."; \
 		sed -i 's|go-boilerplate|$(PROJECT_NAME)|g' Dockerfile; \
-	fi
-	
-	# Update docker-compose.yaml if it exists
-	@if [ -f "docker-compose.yaml" ]; then \
-		echo "Updating docker-compose.yaml..."; \
-		sed -i 's|go-boilerplate|$(PROJECT_NAME)|g' docker-compose.yaml; \
 	fi
 	
 	# Update .gitignore if it contains go-boilerplate references
@@ -74,13 +85,6 @@ init:
 		echo "Updating README.md..."; \
 		sed -i 's|github.com/wasay-usmani/go-boilerplate|$(MODULE_PATH)|g' README.md; \
 		sed -i 's|go-boilerplate|$(PROJECT_NAME)|g' README.md; \
-	fi
-	
-	# Update any configuration files in resources directory
-	@if [ -d "resources" ]; then \
-		echo "Updating configuration files in resources..."; \
-		find resources -type f -exec sed -i 's|go-boilerplate|$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
-		find resources -type f -exec sed -i 's|github.com/wasay-usmani/go-boilerplate|$(MODULE_PATH)|g' {} \; 2>/dev/null || true; \
 	fi
 	
 	# Update .github workflows if they exist

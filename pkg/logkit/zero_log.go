@@ -129,14 +129,14 @@ var logLevelMap = map[LogLevel]zerolog.Level{
 // Hook to add trace id and span id to logs
 func (z *zeroLogger) Run(e *zerolog.Event, level zerolog.Level, msg string) {
 	ctx := e.GetCtx()
-	spanID := ctx.Value(z.spanKey)
-	s, ok := spanID.(string)
+	spanId := ctx.Value(z.spanKey) //nolint:staticcheck
+	s, ok := spanId.(string)
 	if ok {
 		e.Str(spanFieldName, s)
 	}
 
-	traceID := ctx.Value(z.traceKey)
-	t, ok := traceID.(string)
+	traceId := ctx.Value(z.traceKey) //nolint:staticcheck
+	t, ok := traceId.(string)
 	if ok {
 		e.Str(traceFieldName, t)
 	}

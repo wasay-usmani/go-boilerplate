@@ -19,7 +19,7 @@ func TimeToTimestamp(t time.Time) *timestamppb.Timestamp {
 }
 
 func NowInLocation(location string) (time.Time, error) {
-	loc, err := time.LoadLocation("Asia/Karachi")
+	loc, err := time.LoadLocation(location)
 	if err != nil {
 		return time.Time{}, err
 	}

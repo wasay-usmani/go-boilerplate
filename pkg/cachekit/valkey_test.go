@@ -27,7 +27,7 @@ func TestSet(t *testing.T) {
 	exp := 10 * time.Second
 
 	mockClient.EXPECT().
-		Do(ctx, mock.Match("SET", fmt.Sprintf("%s:%s", "test_keyspace", key), val, "EX", "10")).
+		Do(ctx, mock.Match("SET", fmt.Sprintf("%s::%s", "test_keyspace", key), val, "EX", "10")).
 		Return(mock.Result(mock.ValkeyString("OK")))
 
 	err := cache.Save(ctx, key, val, exp)
@@ -41,7 +41,7 @@ func TestGet(t *testing.T) {
 	val := "test_value"
 
 	mockClient.EXPECT().
-		Do(ctx, mock.Match("GET", fmt.Sprintf("%s:%s", "test_keyspace", key))).
+		Do(ctx, mock.Match("GET", fmt.Sprintf("%s::%s", "test_keyspace", key))).
 		Return(mock.Result(mock.ValkeyString(val)))
 
 	result, err := cache.Get(ctx, key)
@@ -55,7 +55,7 @@ func TestRemoveKeys(t *testing.T) {
 	keys := []string{"key1", "key2"}
 
 	mockClient.EXPECT().
-		Do(ctx, mock.Match("DEL", "test_keyspace:key1", "test_keyspace:key2")).
+		Do(ctx, mock.Match("DEL", "test_keyspace::key1", "test_keyspace::key2")).
 		Return(mock.Result(mock.ValkeyInt64(2)))
 
 	err := cache.RemoveKeys(ctx, keys...)
@@ -68,7 +68,7 @@ func TestIsKeyActive(t *testing.T) {
 	key := "test_key"
 
 	mockClient.EXPECT().
-		Do(ctx, mock.Match("EXISTS", fmt.Sprintf("%s:%s", "test_keyspace", key))).
+		Do(ctx, mock.Match("EXISTS", fmt.Sprintf("%s::%s", "test_keyspace", key))).
 		Return(mock.Result(mock.ValkeyInt64(1)))
 
 	result, err := cache.IsKeyActive(ctx, key)
@@ -99,7 +99,7 @@ func TestAddSet(t *testing.T) {
 	set := "my_set"
 	value := "my_value"
 
-	mockClient.EXPECT().Do(ctx, mock.Match("SADD", fmt.Sprintf("%s:%s", "test_keyspace", set), value)).Return(mock.Result(mock.ValkeyInt64(1)))
+	mockClient.EXPECT().Do(ctx, mock.Match("SADD", fmt.Sprintf("%s::%s", "test_keyspace", set), value)).Return(mock.Result(mock.ValkeyInt64(1)))
 
 	_, err := cache.AddSet(ctx, set, value)
 	assert.NoError(t, err)
@@ -110,7 +110,7 @@ func TestRemoveSet(t *testing.T) {
 	ctx := context.Background()
 	set := "my_set"
 
-	mockClient.EXPECT().Do(ctx, mock.Match("DEL", fmt.Sprintf("%s:%s", "test_keyspace", set))).Return(mock.Result(mock.ValkeyInt64(1)))
+	mockClient.EXPECT().Do(ctx, mock.Match("DEL", fmt.Sprintf("%s::%s", "test_keyspace", set))).Return(mock.Result(mock.ValkeyInt64(1)))
 
 	err := cache.RemoveSet(ctx, set)
 	assert.NoError(t, err)
@@ -122,7 +122,7 @@ func TestContainsSet(t *testing.T) {
 	set := "my_set"
 	value := "my_value"
 
-	mockClient.EXPECT().Do(ctx, mock.Match("SISMEMBER", fmt.Sprintf("%s:%s", "test_keyspace", set), value)).Return(mock.Result(mock.ValkeyInt64(1)))
+	mockClient.EXPECT().Do(ctx, mock.Match("SISMEMBER", fmt.Sprintf("%s::%s", "test_keyspace", set), value)).Return(mock.Result(mock.ValkeyInt64(1)))
 
 	exists, err := cache.ContainsSet(ctx, set, value)
 	assert.NoError(t, err)
@@ -135,7 +135,7 @@ func TestRemoveSetValues(t *testing.T) {
 	set := "my_set"
 	values := []string{"value1", "value2"}
 
-	mockClient.EXPECT().Do(ctx, mock.Match("SREM", fmt.Sprintf("%s:%s", "test_keyspace", set), values[0], values[1])).Return(mock.Result(mock.ValkeyInt64(2)))
+	mockClient.EXPECT().Do(ctx, mock.Match("SREM", fmt.Sprintf("%s::%s", "test_keyspace", set), values[0], values[1])).Return(mock.Result(mock.ValkeyInt64(2)))
 
 	n, err := cache.RemoveSetValues(ctx, set, values...)
 	assert.NoError(t, err)

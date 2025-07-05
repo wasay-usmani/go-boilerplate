@@ -144,6 +144,101 @@ func (e *Error) ToGRPCStatus() error {
 	return status.Error(ToGRPCCode(e.Code), e.Error())
 }
 
+// FromGRPCStatus converts a gRPC status error to *Error
+func FromGRPCStatus(err error) *Error {
+	if err == nil {
+		return nil
+	}
+
+	// Check if it's already our Error type
+	if e, ok := err.(*Error); ok {
+		return e
+	}
+
+	// Try to convert from gRPC status
+	if st, ok := status.FromError(err); ok {
+		return FromGRPCCode(st.Code(), st.Message())
+	}
+
+	// Fallback to unknown error
+	return New(Unknown, err.Error())
+}
+
+// FromGRPCCode converts a gRPC code and message to *Error
+func FromGRPCCode(code codes.Code, message string) *Error {
+	errorCode := FromGRPCCodeToErrorCode(code)
+
+	// Parse the message to extract the actual message part
+	// The message format from ToGRPCStatus is: "code: message (fields)"
+	// We want to extract just the "message" part
+	actualMessage := message
+
+	// Check if the message follows our format: "code: message (fields)"
+	if len(message) > 0 {
+		// Look for the pattern "code: message" or "code: message (fields)"
+		for i := 0; i < len(message); i++ {
+			if message[i] == ':' {
+				// Found the colon, skip it and any spaces
+				start := i + 1
+				for start < len(message) && message[start] == ' ' {
+					start++
+				}
+
+				// Check if there are fields at the end "(fields)"
+				end := len(message)
+				if start < len(message) && message[len(message)-1] == ')' {
+					// Look for the opening parenthesis
+					for j := len(message) - 2; j >= start; j-- {
+						if message[j] == '(' {
+							end = j
+							break
+						}
+					}
+					// Remove trailing space before the parenthesis
+					for end > start && message[end-1] == ' ' {
+						end--
+					}
+				}
+
+				if start < end {
+					actualMessage = message[start:end]
+				}
+				break
+			}
+		}
+	}
+
+	return New(errorCode, actualMessage)
+}
+
+// FromGRPCCodeToErrorCode converts a gRPC code to ErrorCode
+func FromGRPCCodeToErrorCode(code codes.Code) ErrorCode {
+	switch code {
+	case codes.NotFound:
+		return NotFound
+	case codes.InvalidArgument:
+		return BadRequest
+	case codes.Unauthenticated:
+		return Unauthorized
+	case codes.PermissionDenied:
+		return Forbidden
+	case codes.AlreadyExists:
+		return AlreadyExists
+	case codes.Aborted:
+		return Conflict
+	case codes.DeadlineExceeded:
+		return Timeout
+	case codes.ResourceExhausted:
+		return TooManyRequests
+	case codes.Internal:
+		return Internal
+	case codes.Unknown:
+		return Unknown
+	default:
+		return Internal
+	}
+}
+
 // FromError attempts to cast a generic error to *Error
 func FromError(err error) *Error {
 	if err == nil {
@@ -173,4 +268,53 @@ func (c ErrorCode) WithMessagef(format string, args ...any) *Error {
 		Message: fmt.Sprintf(format, args...),
 		Fields:  nil,
 	}
+}
+
+// IsGRPCError checks if the given error is a gRPC status error
+func IsGRPCError(err error) bool {
+	if err == nil {
+		return false
+	}
+	_, ok := status.FromError(err)
+	return ok
+}
+
+// GetGRPCCode extracts the gRPC code from an error
+func GetGRPCCode(err error) codes.Code {
+	if err == nil {
+		return codes.OK
+	}
+	if st, ok := status.FromError(err); ok {
+		return st.Code()
+	}
+	return codes.Unknown
+}
+
+// GetGRPCMessage extracts the gRPC message from an error
+func GetGRPCMessage(err error) string {
+	if err == nil {
+		return ""
+	}
+	if st, ok := status.FromError(err); ok {
+		return st.Message()
+	}
+	return err.Error()
+}
+
+// FromGRPCWithDetails converts a gRPC error with details to *Error
+// This is useful when the gRPC error contains additional structured data
+func FromGRPCWithDetails(err error, details map[string]any) *Error {
+	if err == nil {
+		return nil
+	}
+
+	// Convert the base error
+	baseError := FromGRPCStatus(err)
+
+	// Add the details as fields
+	if len(details) > 0 {
+		baseError.Fields = details
+	}
+
+	return baseError
 }

@@ -1,0 +1,113 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  concurrency: 4
+  build-tags:
+    - ""
+  modules-download-mode: readonly
+
+linters:
+  enable-all: false
+  enable:
+    - govet
+    - staticcheck
+    - revive
+    - errcheck
+    - ineffassign
+    - unused
+    - misspell
+    - gocritic
+    - goconst
+    - gocyclo
+    - nakedret
+    - unparam
+    - prealloc
+    - bodyclose
+    - makezero
+    - nolintlint
+    - dogsled
+    - funlen
+    - lll
+    - nestif
+    - whitespace
+    - wsl_v5
+    - zerologlint
+    - gochecknoinits
+    - godox
+    - mnd
+    - goprintffuncname
+    - noctx
+    - errorlint
+    - funcorder
+
+  settings:
+    revive:
+      rules:
+        - name: package-comments
+          disabled: true
+    errcheck:
+      check-type-assertions: true
+      check-blank: false
+    gocyclo:
+      min-complexity: 15
+    dupl:
+      threshold: 100
+    lll:
+      line-length: 160
+      tab-width: 1
+    funlen:
+      lines: -1
+      statements: 50
+    misspell:
+      locale: US
+      ignore-rules:
+        - "importas"
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - experimental
+        - opinionated
+        - performance
+        - style
+      disabled-checks:
+        - dupImport
+        - ifElseChain
+        - whyNoLint
+    staticcheck:
+      checks: ["all", "-ST1000", "-ST1020"]
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - return
+      ignored-numbers:
+        - "0"
+        - "1"
+        - "2"
+        - "3"
+      ignored-functions:
+        - strings.SplitN
+    errorlint:
+      asserts: false
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - dupl
+          - mnd
+          - lll
+      - linters:
+          - lll
+        source: "^//go:generate "
+      - linters:
+          - errcheck
+        text: "(\\*sql.Rows).Close"
+      - path: ^vendor/
+        linters:
+          - "all"

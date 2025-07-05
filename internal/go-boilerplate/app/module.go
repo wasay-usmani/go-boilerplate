@@ -13,7 +13,6 @@ type Module struct {
 func NewModule(cfg *config.Config) (*Module, func()) {
 	// Initialize read & write database connections
 	// writeDB, readDB := initDBConns(cfg)
-
 	writeR := repository.NewModule()
 	readR := repository.NewModule()
 

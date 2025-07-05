@@ -94,6 +94,29 @@ init:
 		find .github -name "*.yml" -o -name "*.yaml" -exec sed -i 's|github.com/wasay-usmani/go-boilerplate|$(MODULE_PATH)|g' {} \; 2>/dev/null || true; \
 	fi
 	
+	# Update resources directory
+	@if [ -d "resources" ]; then \
+		echo "Updating resources directory..."; \
+		# Rename the go-boilberplate directory (note the typo) \
+		if [ -d "resources/go-boilberplate" ]; then \
+			echo "Renaming resources/go-boilberplate to resources/$(PROJECT_NAME)..."; \
+			mv resources/go-boilberplate resources/$(PROJECT_NAME); \
+		fi; \
+		# Update all files in resources directory \
+		find resources -type f -exec sed -i 's|go-boilerplate|$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
+		find resources -type f -exec sed -i 's|go_boilerplate|$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
+		find resources -type f -exec sed -i 's|migrations_app_go_boilerplate|migrations_app_$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
+		find resources -type f -exec sed -i 's|migrations_schema_go_boilerplate|migrations_schema_$(PROJECT_NAME)|g' {} \; 2>/dev/null || true; \
+		find resources -type f -exec sed -i 's|github.com/wasay-usmani/go-boilerplate|$(MODULE_PATH)|g' {} \; 2>/dev/null || true; \
+		# Fix Dockerfile references \
+		if [ -f "resources/$(PROJECT_NAME)/Dockerfile" ]; then \
+			echo "Updating Dockerfile in resources..."; \
+			sed -i 's|/build/cmd/yolo/main.go|/build/cmd/$(PROJECT_NAME)/main.go|g' resources/$(PROJECT_NAME)/Dockerfile; \
+			sed -i 's|-o yolo|-o $(PROJECT_NAME)|g' resources/$(PROJECT_NAME)/Dockerfile; \
+			sed -i 's|ENTRYPOINT \[ "./yolo" \]|ENTRYPOINT \[ "./$(PROJECT_NAME)" \]|g' resources/$(PROJECT_NAME)/Dockerfile; \
+		fi; \
+	fi
+	
 	# Run go mod tidy to clean up dependencies
 	@echo "Running go mod tidy..."
 	@go mod tidy

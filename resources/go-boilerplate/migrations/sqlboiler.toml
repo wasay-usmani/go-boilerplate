@@ -2,12 +2,12 @@
 no-tests = true
 
 [mysql]
-  dbname  = "tr_billy"
+  dbname  = "go_boilerplate"
   host    = "localhost"
   port    = 1444
-  user    = "billy"
-  pass    = "billy"
+  user    = "go_boilerplate"
+  pass    = "go_boilerplate"
   sslmode = "false"
   blacklist = [
-    "migrations_app_tr_billy"
+    "migrations_app_go_boilerplate"
   ]

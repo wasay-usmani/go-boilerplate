@@ -31,5 +31,3 @@ COPY --from=builder /build/go-boilerplate .
 EXPOSE 8080/tcp
 
 ENTRYPOINT [ "./go-boilerplate" ]
-
-# docker build -t <account_id>.dkr.ecr.<region>.amazonaws.com/go-boilerplate/go-boilerplate:latest . -f resources/dockerfiles/go-boilerplate.Dockerfile

@@ -1,7 +1,7 @@
 development:
   dialect: mysql
   datasource: root:root@tcp(localhost:1444)/dev?charset=utf8&parseTime=true
-  dir: resources/migrations/go-boilerplate/schema/migrations
+  dir: resources/go-boilerplate/migrations/schema/migrations
   table: migrations_schema_go_boilerplate
 container:
   dialect: mysql

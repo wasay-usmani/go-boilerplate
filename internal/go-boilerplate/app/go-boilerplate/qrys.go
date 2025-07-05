@@ -1,6 +1,8 @@
 package goboilerplate
 
-import "github.com/wasay-usmani/go-boilerplate/internal/go-boilerplate/repository"
+import (
+	"github.com/wasay-usmani/go-boilerplate/internal/go-boilerplate/repository"
+)
 
 type QrysHandler interface {
 }

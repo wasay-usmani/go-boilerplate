@@ -162,65 +162,6 @@ func TestFromGRPCCodeToErrorCode(t *testing.T) {
 	}
 }
 
-func TestIsGRPCError(t *testing.T) {
-	tests := []struct {
-		name     string
-		err      error
-		expected bool
-	}{
-		{"nil error", nil, false},
-		{"grpc error", status.Error(codes.NotFound, "not found"), true},
-		{"regular error", assert.AnError, false},
-		{"our error", New(NotFound, "not found"), false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := IsGRPCError(tt.err)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
-func TestGetGRPCCode(t *testing.T) {
-	tests := []struct {
-		name     string
-		err      error
-		expected codes.Code
-	}{
-		{"nil error", nil, codes.OK},
-		{"grpc not found", status.Error(codes.NotFound, "not found"), codes.NotFound},
-		{"grpc invalid argument", status.Error(codes.InvalidArgument, "bad request"), codes.InvalidArgument},
-		{"regular error", assert.AnError, codes.Unknown},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := GetGRPCCode(tt.err)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
-func TestGetGRPCMessage(t *testing.T) {
-	tests := []struct {
-		name     string
-		err      error
-		expected string
-	}{
-		{"nil error", nil, ""},
-		{"grpc error", status.Error(codes.NotFound, "resource not found"), "resource not found"},
-		{"regular error", assert.AnError, assert.AnError.Error()},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := GetGRPCMessage(tt.err)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
-}
-
 func TestFromGRPCWithDetails(t *testing.T) {
 	grpcErr := status.Error(codes.InvalidArgument, "validation failed")
 	details := map[string]any{

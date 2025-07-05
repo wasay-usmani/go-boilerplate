@@ -270,37 +270,6 @@ func (c ErrorCode) WithMessagef(format string, args ...any) *Error {
 	}
 }
 
-// IsGRPCError checks if the given error is a gRPC status error
-func IsGRPCError(err error) bool {
-	if err == nil {
-		return false
-	}
-	_, ok := status.FromError(err)
-	return ok
-}
-
-// GetGRPCCode extracts the gRPC code from an error
-func GetGRPCCode(err error) codes.Code {
-	if err == nil {
-		return codes.OK
-	}
-	if st, ok := status.FromError(err); ok {
-		return st.Code()
-	}
-	return codes.Unknown
-}
-
-// GetGRPCMessage extracts the gRPC message from an error
-func GetGRPCMessage(err error) string {
-	if err == nil {
-		return ""
-	}
-	if st, ok := status.FromError(err); ok {
-		return st.Message()
-	}
-	return err.Error()
-}
-
 // FromGRPCWithDetails converts a gRPC error with details to *Error
 // This is useful when the gRPC error contains additional structured data
 func FromGRPCWithDetails(err error, details map[string]any) *Error {

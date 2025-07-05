@@ -32,13 +32,11 @@ linters:
     - lll
     - nestif
     - whitespace
-    - wsl_v5
     - zerologlint
     - gochecknoinits
     - godox
     - mnd
     - goprintffuncname
-    - noctx
     - errorlint
     - funcorder
 

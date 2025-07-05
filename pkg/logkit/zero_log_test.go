@@ -11,6 +11,14 @@ import (
 	"github.com/rs/zerolog"
 )
 
+type spanKeyType struct{}
+type traceKeyType struct{}
+
+var (
+	spanKey  = spanKeyType{}
+	traceKey = traceKeyType{}
+)
+
 func TestNewZeroLogger(t *testing.T) {
 	logger := NewLogger(Info, "gotils-test")
 	if logger == nil {
@@ -95,8 +103,8 @@ func TestLogger_WithContext(t *testing.T) {
 	logger := NewLogger(Info, "gotils-test", WithOutput(buf), WithTraceHook("span-id", "trace-id"))
 
 	ctx := context.Background()
-	ctx = context.WithValue(ctx, "span-id", "span-123")
-	ctx = context.WithValue(ctx, "trace-id", "trace-456")
+	ctx = context.WithValue(ctx, spanKey, "span-123")
+	ctx = context.WithValue(ctx, traceKey, "trace-456")
 
 	loggerWithCtx := logger.WithContext(ctx, "user", "anand", "env", "staging")
 	loggerWithCtx.Info("contextual log")

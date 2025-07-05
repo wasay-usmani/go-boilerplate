@@ -106,7 +106,7 @@ func (v *valkeyClient) RemoveSet(ctx context.Context, set string) error {
 	return v.client.Do(ctx, cmd).Error()
 }
 
-func (v *valkeyClient) ContainsSet(ctx context.Context, set string, value string) (bool, error) {
+func (v *valkeyClient) ContainsSet(ctx context.Context, set, value string) (bool, error) {
 	cmd := v.client.B().Sismember().Key(v.formatKey(set)).Member(value).Build()
 	res, err := v.client.Do(ctx, cmd).ToInt64()
 	if err != nil {

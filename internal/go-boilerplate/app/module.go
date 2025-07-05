@@ -10,17 +10,15 @@ type Module struct {
 	Boilerplate goboilerplate.App
 }
 
-func NewModule(cfg *config.Config) (*Module, func()) {
+func NewModule(cfg *config.Config) (module *Module, cleanup func()) {
 	// Initialize read & write database connections
 	// writeDB, readDB := initDBConns(cfg)
 	writeR := repository.NewModule()
 	readR := repository.NewModule()
-
 	return &Module{
 			Boilerplate: goboilerplate.New(writeR, readR),
 		}, func() {
-			//	_ = writeDB.Close()
-			//	_ = readDB.Close()
+			// Database cleanup will be implemented when database connections are added
 		}
 }
 

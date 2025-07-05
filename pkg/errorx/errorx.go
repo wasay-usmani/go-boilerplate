@@ -35,6 +35,11 @@ type Error struct {
 	Fields       map[string]any `json:"fields,omitempty"`
 }
 
+// NewValidation creates a validation error with fields
+func NewValidation(message string, fields map[string]any) *Error {
+	return New(BadRequest, message, WithFields(fields))
+}
+
 // Error implements the error interface
 func (e *Error) Error() string {
 	if len(e.Fields) > 0 {
@@ -80,11 +85,6 @@ func New(code ErrorCode, message string, opts ...Option) *Error {
 func Is(err error, code ErrorCode) bool {
 	e, ok := err.(*Error)
 	return ok && e.Code == code
-}
-
-// NewValidation creates a validation error with fields
-func NewValidation(message string, fields map[string]any) *Error {
-	return New(BadRequest, message, WithFields(fields))
 }
 
 // ToHTTPStatus converts an internal error code to an HTTP status code

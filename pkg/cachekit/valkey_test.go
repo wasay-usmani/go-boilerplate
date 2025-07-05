@@ -11,6 +11,11 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
+const (
+	testKey = "test_key"
+	mySet   = "my_set"
+)
+
 func setupMockClient(t *testing.T) (*mock.Client, Cache) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -22,7 +27,7 @@ func setupMockClient(t *testing.T) (*mock.Client, Cache) {
 func TestSet(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	key := "test_key"
+	key := testKey
 	val := "test_value"
 	exp := 10 * time.Second
 
@@ -37,7 +42,7 @@ func TestSet(t *testing.T) {
 func TestGet(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	key := "test_key"
+	key := testKey
 	val := "test_value"
 
 	mockClient.EXPECT().
@@ -65,7 +70,7 @@ func TestRemoveKeys(t *testing.T) {
 func TestIsKeyActive(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	key := "test_key"
+	key := testKey
 
 	mockClient.EXPECT().
 		Do(ctx, mock.Match("EXISTS", fmt.Sprintf("%s:%s", "test_keyspace", key))).
@@ -96,7 +101,7 @@ func TestClose(t *testing.T) {
 func TestAddSet(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	set := "my_set"
+	set := mySet
 	value := "my_value"
 
 	mockClient.EXPECT().Do(ctx, mock.Match("SADD", fmt.Sprintf("%s:%s", "test_keyspace", set), value)).Return(mock.Result(mock.ValkeyInt64(1)))
@@ -108,7 +113,7 @@ func TestAddSet(t *testing.T) {
 func TestRemoveSet(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	set := "my_set"
+	set := mySet
 
 	mockClient.EXPECT().Do(ctx, mock.Match("DEL", fmt.Sprintf("%s:%s", "test_keyspace", set))).Return(mock.Result(mock.ValkeyInt64(1)))
 
@@ -119,7 +124,7 @@ func TestRemoveSet(t *testing.T) {
 func TestContainsSet(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	set := "my_set"
+	set := mySet
 	value := "my_value"
 
 	mockClient.EXPECT().Do(ctx, mock.Match("SISMEMBER", fmt.Sprintf("%s:%s", "test_keyspace", set), value)).Return(mock.Result(mock.ValkeyInt64(1)))
@@ -132,7 +137,7 @@ func TestContainsSet(t *testing.T) {
 func TestRemoveSetValues(t *testing.T) {
 	mockClient, cache := setupMockClient(t)
 	ctx := context.Background()
-	set := "my_set"
+	set := mySet
 	values := []string{"value1", "value2"}
 
 	mockClient.EXPECT().Do(ctx, mock.Match("SREM", fmt.Sprintf("%s:%s", "test_keyspace", set), values[0], values[1])).Return(mock.Result(mock.ValkeyInt64(2)))

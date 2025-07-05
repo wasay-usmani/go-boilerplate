@@ -35,10 +35,10 @@ func main() {
 	}
 
 	// Initialize app module
-	app, appCleanUp := app.NewModule(cfg)
+	appModule, appCleanUp := app.NewModule(cfg)
 
 	// Initialize requests handler
-	hBase := http_server.NewHandlerBase(cfg, app)
+	hBase := http_server.NewHandlerBase(cfg, appModule)
 	router := hBase.LoadRoutes()
 
 	// Start API Server
@@ -51,14 +51,15 @@ func main() {
 	}
 
 	// Start RPC Server
-	rpcHandle := rpc.NewHandlerBase(cfg, app)
+	rpcHandle := rpc.NewHandlerBase(cfg, appModule)
+
 	go func() {
 		// Start Serving Connections
 		rpcErr := rpcHandle.Run()
 		if rpcErr != nil {
 			log.Fatal(
 				"Server Error while trying to serve rpc",
-				"rpc.port", cfg.RpcListenPort,
+				"rpc.port", cfg.RPCListenPort,
 				"err", rpcErr,
 			)
 		}
@@ -90,8 +91,7 @@ func main() {
 	// Shutdown HTTP Server
 	// Shutdown HTTP server
 	subCtx, shutdownCancel := context.WithTimeout(ctx, _shutdownTimeout*time.Second)
-	if err := server.Shutdown(subCtx); err != nil {
-	}
+	_ = server.Shutdown(subCtx)
 
 	close(quit)
 	appCleanUp()

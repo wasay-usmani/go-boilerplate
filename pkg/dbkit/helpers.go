@@ -20,14 +20,12 @@ const (
 func PrimaryOrDefaultOrderBy(primaryDirection, primarySortBy string) string {
 	direction := PrimaryOrDefaultDirection(primaryDirection)
 	sortBy := PrimaryOrDefaultSortBy(primarySortBy)
-
 	return fmt.Sprintf("%s %s", sortBy, direction)
 }
 
 func PrimaryOrDefaultOrderByPtr(primaryDirection, primarySortBy *string) string {
 	direction := PrimaryOrDefaultDirectionPtr(primaryDirection)
 	sortBy := PrimaryOrDefaultSortByPtr(primarySortBy)
-
 	return fmt.Sprintf("%s %s", sortBy, direction)
 }
 

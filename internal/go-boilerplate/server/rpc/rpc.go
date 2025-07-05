@@ -23,7 +23,7 @@ func NewHandlerBase(c *config.Config, application *app.Module) *H {
 }
 
 func (h *H) Run() error {
-	listener, err := net.Listen("tcp", h.conf.RpcListenPort)
+	listener, err := net.Listen("tcp", h.conf.RPCListenPort)
 	if err != nil {
 		return fmt.Errorf("failed to initialize rpc listener: %s", err.Error())
 	}

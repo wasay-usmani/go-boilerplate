@@ -10,7 +10,7 @@ import (
 )
 
 // The LoadPostgresSqlConn function can be used for redshift as well as postgres
-func LoadPostgresSqlConn(postgresURL string, debug bool, l logkit.Logger) (*SqlConn, error) {
+func LoadPostgresSQLConn(postgresURL string, debug bool, l logkit.Logger) (*SQLConn, error) {
 	sqldb, err := sql.Open("postgres", postgresURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot connect postgres: %w", err)
@@ -25,5 +25,5 @@ func LoadPostgresSqlConn(postgresURL string, debug bool, l logkit.Logger) (*SqlC
 		boil.DebugMode = true
 	}
 
-	return &SqlConn{sqldb, l}, nil
+	return &SQLConn{sqldb, l}, nil
 }

@@ -28,6 +28,5 @@ func (h *H) LoadRoutes() http.Handler {
 
 	// v1 Health Check Endpoint
 	v1Base.GET(healthPath, h.getHealth)
-
 	return e
 }

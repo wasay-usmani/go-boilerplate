@@ -17,11 +17,16 @@ const (
 
 func ApplyMigrations(superUserDBURL, appDBURL, dbSchema string, l logkit.Logger, schemaAssets, appAssets embed.FS) error {
 	// Init schema db connection
-	schemaDB, err := LoadMySqlConn(superUserDBURL, true, l)
+	schemaDB, err := LoadMySQLConn(superUserDBURL, true, l)
 	if err != nil {
 		return fmt.Errorf("failed to load superuser db, error: %w", err)
 	}
-	defer schemaDB.Close()
+
+	defer func() {
+		if closeErr := schemaDB.Close(); closeErr != nil {
+			l.Error("failed to close schema db connection", closeErr)
+		}
+	}()
 
 	// Apply schema migrations
 	if err = applySchemaMigrations(schemaDB.DB, dbSchema, l, schemaAssets); err != nil {
@@ -29,11 +34,16 @@ func ApplyMigrations(superUserDBURL, appDBURL, dbSchema string, l logkit.Logger,
 	}
 
 	// Init app db connection
-	appDB, err := LoadMySqlConn(appDBURL, true, l)
+	appDB, err := LoadMySQLConn(appDBURL, true, l)
 	if err != nil {
 		return fmt.Errorf("failed to load sfpy_reporter, error: %w", err)
 	}
-	defer appDB.Close()
+
+	defer func() {
+		if closeErr := appDB.Close(); closeErr != nil {
+			l.Error("failed to close app db connection", closeErr)
+		}
+	}()
 
 	// Apply app migrations
 	if err = applyAppMigrations(appDB.DB, dbSchema, l, appAssets); err != nil {

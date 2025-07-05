@@ -16,7 +16,7 @@ const (
 type Config struct {
 	ListenHost    string `validate:"required"`
 	ListenPort    string `validate:"required"`
-	RpcListenPort string `validate:"required"`
+	RPCListenPort string `validate:"required"`
 	LogLevel      string `validate:"required"`
 	Environment   string `validate:"required"`
 	Debug         bool

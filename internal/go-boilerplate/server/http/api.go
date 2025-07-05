@@ -10,9 +10,9 @@ type H struct {
 	app *app.Module
 }
 
-func NewHandlerBase(cfg *config.Config, app *app.Module) *H {
+func NewHandlerBase(cfg *config.Config, appModule *app.Module) *H {
 	return &H{
 		cfg: cfg,
-		app: app,
+		app: appModule,
 	}
 }

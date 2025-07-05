@@ -13,7 +13,7 @@ import (
 func HTTPErrorHandler(logger logkit.Logger) echo.HTTPErrorHandler {
 	return func(err error, c echo.Context) {
 		// Retrieve the request ID from the response headers
-		requestID := c.Response().Header().Get(httpx.RequestIdHeader)
+		requestID := c.Response().Header().Get(httpx.RequestIDHeader)
 
 		// Default to internal server error
 		code := http.StatusInternalServerError
@@ -37,7 +37,6 @@ func HTTPErrorHandler(logger logkit.Logger) echo.HTTPErrorHandler {
 		}
 
 		// Construct the error response
-		// TODO: Implement error response construction after finalizing the error response structure.
 		resp := map[string]any{
 			"error": map[string]any{
 				"code":    code,

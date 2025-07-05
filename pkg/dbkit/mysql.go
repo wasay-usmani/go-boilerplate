@@ -9,7 +9,7 @@ import (
 	"github.com/wasay-usmani/go-boilerplate/pkg/logkit"
 )
 
-func LoadMySqlConn(mysqlURL string, debug bool, l logkit.Logger) (*SqlConn, error) {
+func LoadMySQLConn(mysqlURL string, debug bool, l logkit.Logger) (*SQLConn, error) {
 	sqldb, err := sql.Open("mysql", mysqlURL)
 	if err != nil {
 		return nil, fmt.Errorf("cannot connect mysql: %w", err)
@@ -21,5 +21,5 @@ func LoadMySqlConn(mysqlURL string, debug bool, l logkit.Logger) (*SqlConn, erro
 		return nil, fmt.Errorf("cannot ping mysql: %w", err)
 	}
 
-	return &SqlConn{sqldb, l}, nil
+	return &SQLConn{sqldb, l}, nil
 }

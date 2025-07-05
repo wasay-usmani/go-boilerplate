@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config holds the application configuration.
+// C holds the application configuration.
 type C struct {
 	Viper *viper.Viper
 

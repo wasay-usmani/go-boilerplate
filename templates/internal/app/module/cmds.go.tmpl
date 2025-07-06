@@ -1,0 +1,17 @@
+package {{.AppNamePkg}}
+
+import "{{.ModulePath}}/internal/{{.ServiceName}}/repository"
+
+type CmdsHandler interface {
+	// Add your command handlers here
+}
+
+type cmdsHandler struct {
+	writeRepo *repository.Module
+}
+
+func NewCmdsHandler(writeRepo *repository.Module) CmdsHandler {
+	return &cmdsHandler{
+		writeRepo: writeRepo,
+	}
+} 

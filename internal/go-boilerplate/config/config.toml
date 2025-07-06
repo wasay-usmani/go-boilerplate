@@ -1,0 +1,11 @@
+ENVIRONMENT = "development"
+LOG_LEVEL = "debug"
+DEBUG = true
+
+HTTP_LISTEN_HOST = "127.0.0.1"
+HTTP_LISTEN_PORT = "8080"
+
+DB_SCHEMA = "go_boilerplate"
+SUPERUSER_DATABASE_URL = "root:root@tcp(localhost:1444)/dev?charset=utf8&parseTime=true"
+WRITE_DB_URL = "goboiler:goboiler@tcp(127.0.0.1:1444)/go_boilerplate?charset=utf8&parseTime=true"
+READ_DB_URL = "goboiler:goboiler@tcp(127.0.0.1:1444)/go_boilerplate?charset=utf8&parseTime=true"

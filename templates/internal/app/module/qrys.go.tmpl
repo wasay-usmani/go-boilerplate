@@ -1,0 +1,17 @@
+package {{.AppNamePkg}}
+
+import "{{.ModulePath}}/internal/{{.ServiceName}}/repository"
+
+type QrysHandler interface {
+	// Add your query handlers here
+}
+
+type qrysHandler struct {
+	readRepo *repository.Module
+}
+
+func NewQrysHandler(readRepo *repository.Module) QrysHandler {
+	return &qrysHandler{
+		readRepo: readRepo,
+	}
+} 

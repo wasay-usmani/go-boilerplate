@@ -1,0 +1,18 @@
+package http
+
+import (
+	"{{.ModulePath}}/internal/{{.ServiceName}}/app"
+	"{{.ModulePath}}/internal/{{.ServiceName}}/config"
+)
+
+type H struct {
+	cfg *config.Config
+	app *app.Module
+}
+
+func NewHandlerBase(cfg *config.Config, appModule *app.Module) *H {
+	return &H{
+		cfg: cfg,
+		app: appModule,
+	}
+} 

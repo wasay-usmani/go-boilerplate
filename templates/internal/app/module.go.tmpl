@@ -1,0 +1,27 @@
+package app
+
+import (
+	{{.ServiceNameCamel}} "{{.ModulePath}}/internal/{{.ServiceName}}/app/{{.ServiceName}}"
+	"{{.ModulePath}}/internal/{{.ServiceName}}/config"
+	"{{.ModulePath}}/internal/{{.ServiceName}}/repository"
+)
+
+type Module struct {
+	{{.ServiceNameCamel}} {{.ServiceNameCamel}}.App
+}
+
+func NewModule(cfg *config.Config) (module *Module, cleanup func()) {
+	// Initialize read & write database connections
+	// writeDB, readDB := initDBConns(cfg)
+	writeR := repository.NewModule()
+	readR := repository.NewModule()
+	return &Module{
+		{{.ServiceNameCamel}}: {{.ServiceNameCamel}}.New(writeR, readR),
+	}, func() {
+		// Database cleanup will be implemented when database connections are added
+	}
+}
+
+func NewMockModule() *Module {
+	return &Module{}
+} 

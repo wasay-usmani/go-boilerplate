@@ -1,0 +1,168 @@
+name: Template Initialization
+
+on:
+  # Run on push to main branch
+  push:
+    branches: [ main ]
+  
+  # Manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      module_path:
+        description: 'Module path (e.g., github.com/mycompany/my-app)'
+        required: true
+        default: 'github.com/mycompany/my-app'
+        type: string
+
+jobs:
+  check-and-initialize:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24'
+        
+    - name: Check if initialization is needed
+      id: check_init
+      run: |
+        REPO_NAME="${{ github.event.repository.name }}"
+        MODULE_PATH="github.com/${{ github.repository_owner }}/$REPO_NAME"
+        
+        # Check if this is a template repo (should not be initialized)
+        if [ "$REPO_NAME" = "go-boilerplate" ]; then
+          echo "is_template=true" >> $GITHUB_OUTPUT
+          echo "ℹ️ This is the template repository, skipping initialization"
+          exit 0
+        fi
+        
+        # Check if go.mod still contains go-boilerplate references
+        if grep -q "github.com/wasay-usmani/go-boilerplate" go.mod; then
+          echo "needs_init=true" >> $GITHUB_OUTPUT
+          echo "module_path=$MODULE_PATH" >> $GITHUB_OUTPUT
+          echo "✅ Repository needs initialization"
+          echo "📁 Repo name: $REPO_NAME"
+          echo "📁 Module path: $MODULE_PATH"
+        else
+          echo "needs_init=false" >> $GITHUB_OUTPUT
+          echo "ℹ️ Repository already initialized, skipping"
+        fi
+        
+    - name: Initialize boilerplate
+      if: steps.check_init.outputs.needs_init == 'true'
+      run: |
+        echo "Running make init with module path: ${{ steps.check_init.outputs.module_path }}"
+        make init MODULE_PATH="${{ steps.check_init.outputs.module_path }}"
+        
+    - name: Verify initialization
+      if: steps.check_init.outputs.needs_init == 'true'
+      run: |
+        echo "Verifying initialization..."
+        
+        # Check if go.mod was updated
+        if grep -q "module ${{ steps.check_init.outputs.module_path }}" go.mod; then
+          echo "✅ go.mod updated successfully"
+        else
+          echo "❌ go.mod not updated correctly"
+          exit 1
+        fi
+        
+        # Check if directories were renamed
+        PROJECT_NAME="${{ github.event.repository.name }}"
+        if [ -d "cmd/$PROJECT_NAME" ]; then
+          echo "✅ cmd directory renamed to cmd/$PROJECT_NAME"
+        else
+          echo "❌ cmd directory not renamed correctly"
+          exit 1
+        fi
+        
+        if [ -d "internal/$PROJECT_NAME" ]; then
+          echo "✅ internal directory renamed to internal/$PROJECT_NAME"
+        else
+          echo "❌ internal directory not renamed correctly"
+          exit 1
+        fi
+        
+        if [ -d "resources/$PROJECT_NAME" ]; then
+          echo "✅ resources directory renamed to resources/$PROJECT_NAME"
+        else
+          echo "❌ resources directory not renamed correctly"
+          exit 1
+        fi
+        
+    - name: Test build
+      if: steps.check_init.outputs.needs_init == 'true'
+      run: |
+        echo "Testing build..."
+        make build
+        
+    - name: Run tests
+      if: steps.check_init.outputs.needs_init == 'true'
+      run: |
+        echo "Running tests..."
+        make test
+        
+    - name: Commit changes
+      if: steps.check_init.outputs.needs_init == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add -A
+        git commit -m "Initialize boilerplate with module path: ${{ steps.check_init.outputs.module_path }}"
+        
+    - name: Push changes
+      if: steps.check_init.outputs.needs_init == 'true'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
+        
+    - name: Create success issue
+      if: steps.check_init.outputs.needs_init == 'true'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const { data: issues } = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🎉 Template Initialization Complete!',
+            body: `## ✅ Boilerplate Successfully Initialized!
+          
+          Your Go boilerplate has been automatically initialized with the following configuration:
+          
+          - **Module Path**: \`${{ steps.check_init.outputs.module_path }}\`
+          - **Project Name**: \`${{ github.event.repository.name }}\`
+          
+          ## 🚀 Next Steps:
+          
+          1. **Review the changes** - All import paths and configuration files have been updated
+          2. **Update your README.md** - Customize it for your project
+          3. **Configure your database** - Update the database configuration in \`resources/\`
+          4. **Deploy your application** - Use the provided Dockerfile
+          
+          ## 📁 Project Structure:
+          
+          \`\`\`
+          cmd/${{ github.event.repository.name }}/
+          internal/${{ github.event.repository.name }}/
+          resources/${{ github.event.repository.name }}/
+          \`\`\`
+          
+          ## 🛠️ Available Commands:
+          
+          - \`make build\` - Build the application
+          - \`make test\` - Run tests
+          - \`make clean\` - Clean build artifacts
+          - \`make deps\` - Install dependencies
+          - \`make create-service SERVICE_NAME=my-service\` - Create a new microservice
+          - \`make create-app SERVICE_NAME=my-service APP_NAME=my-app\` - Add a new app module
+          
+          Happy coding! 🎯`
+          }); 
